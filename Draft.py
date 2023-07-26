@@ -16,7 +16,7 @@ def load_file(file, channel):
     image = imageio.imread(filename)
     return image[channel, :, :, :]
 
-data_folder = Path("A375M2_NUP96_1")
+data_folder = Path("Data\A375M2_NUP96_1")
 files = ["A375M2_NUP96_1_MMStack_Pos0.ome.tif"]
 
 pores = load_file(files[0], 0)
