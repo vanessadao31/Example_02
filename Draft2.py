@@ -6,27 +6,30 @@ Created on Tue Jul 25 11:56:15 2023
 """
 
 from pathlib import Path
-import matplotlib.pyplot as plt
 import numpy as np
 import napari
 import imageio.v2 as imageio
 
-from skimage.morphology import local_maxima
-from skimage import data, measure, exposure, filters, feature
-from skimage.segmentation import watershed
-from scipy.ndimage import binary_erosion
-
+from skimage import filters, feature
 import napari_segment_blobs_and_things_with_membranes as nsbatwm
-import napari_blob_detection as nbd
 import pyclesperanto_prototype as cle
 
-from detect_blobs import _detect_blobs, difference_of_gaussian
+from Draft import load_file, redirect_segmentation, binary_threshold
 
+def local_maxima(image, binary_image):
+    preprocessed = filters.gaussian(image, sigma=1, preserve_range=True)
+    local_maxima_image = cle.detect_maxima_box(preprocessed)
+    all_labeled = cle.label_spots(local_maxima_image)
 
-def load_file(file, channel):
-    filename = data_folder / file
-    image = imageio.imread(filename)
-    return image[channel, :, :, :]
+    final_spots = cle.exclude_labels_with_map_values_out_of_range(
+        binary_image,
+        all_labeled,
+        minimum_value_range=1,
+        maximum_value_range=1)
+    
+    points = np.argwhere(final_spots)
+    
+    return points
 
 data_folder = Path("A375M2_NUP96_1")
 files = ["A375M2_NUP96_1_MMStack_Pos0.ome.tif"]
@@ -34,47 +37,16 @@ files = ["A375M2_NUP96_1_MMStack_Pos0.ome.tif"]
 pores = load_file(files[0], 0)
 nucleus = load_file(files[0], 1)
 
-def redirect_segmentation(mask, signal):
-    image = np.asarray(mask)
-    
-    # blur and detect local maxima
-    blurred_spots = filters.gaussian(image, 2)
-    spot_centroids = local_maxima(blurred_spots)
-    
-    # blur and threshold
-    blurred = filters.gaussian(image, 2)
-    thresh = filters.threshold_li(image)
-    binary_li = blurred >= thresh
-    
-    return binary_li * signal
-
 nucleus_filtered = nsbatwm.median_filter(nucleus)
 segmented_pores = redirect_segmentation(nucleus_filtered, pores)
 
-nucleus_filtered = nsbatwm.median_filter(nucleus)
-segmented_pores = redirect_segmentation(nucleus_filtered, pores)
-pores_labels, state, Points = difference_of_gaussian(segmented_pores)
+points_data = feature.blob_dog(segmented_pores.astype(float), min_sigma=1, max_sigma=10, threshold=0.7)
+points = points_data[:, :3].astype(int)
+
+binary = binary_threshold(segmented_pores)
+
+final_pores = local_maxima(segmented_pores, binary)
 
 viewer = napari.Viewer()
 CH1 = viewer.add_image(segmented_pores, name='nucleus pores')
-CH2 = viewer.add_points(pores_labels, name='blobs', size=5)
-
-# # Edge blob detection
-# def edge_segmentation(mask, signal):
-#     image = np.asarray(mask)
-    
-#     # blur and detect local maxima
-#     blurred_spots = filters.gaussian(image, 2)
-#     spot_centroids = local_maxima(blurred_spots)
-    
-#     # blur and threshold
-#     blurred = filters.gaussian(image, 2)
-#     thresh = filters.threshold_li(image)
-#     binary_li = blurred >= thresh
-    
-#     eroded = binary_erosion(binary_li, iterations=5)
-    
-#     return eroded * signal
-
-# nucleus_edge = edge_segmentation(nucleus_filtered, pores)
-# CH3 = viewer.add_image(nucleus_edge, name='edge')
+CH2 = viewer.add_points(final_pores, name='blobs', size=5)

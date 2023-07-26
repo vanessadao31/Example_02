@@ -9,7 +9,7 @@ import imageio.v2 as imageio
 
 from skimage import filters, feature
 import napari_segment_blobs_and_things_with_membranes as nsbatwm
-
+import pyclesperanto_prototype as cle
 
 def load_file(file, channel):
     filename = data_folder / file
@@ -41,6 +41,21 @@ def binary_threshold(data):
     
     return binary.astype(int)
 
+def local_maxima(image, binary_image):
+    preprocessed = filters.gaussian(image, sigma=1, preserve_range=True)
+    local_maxima_image = cle.detect_maxima_box(preprocessed)
+    all_labeled = cle.label_spots(local_maxima_image)
+
+    final_spots = cle.exclude_labels_with_map_values_out_of_range(
+        binary_image,
+        all_labeled,
+        minimum_value_range=1,
+        maximum_value_range=1)
+    
+    points = np.argwhere(final_spots)
+    
+    return points
+
 nucleus_filtered = nsbatwm.median_filter(nucleus)
 segmented_pores = redirect_segmentation(nucleus_filtered, pores)
 
@@ -55,6 +70,9 @@ for i in range(points.shape[0]):
        pos_points = np.append(pos_points, points[i], axis=0)
 
 final_pores = np.reshape(pos_points, (-1, 3))
+final_pores2 = local_maxima(segmented_pores, binary)
+
 viewer = napari.Viewer()
 CH1 = viewer.add_image(segmented_pores, name='nucleus pores')
-CH2 = viewer.add_points(final_pores, name='blobs', size=5)
+CH2 = viewer.add_points(final_pores, name='blobs skimage', size=5)
+CH3 = viewer.add_points(final_pores2, name='blobs clesp', size=5)
