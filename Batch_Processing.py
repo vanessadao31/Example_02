@@ -8,6 +8,7 @@ from pathlib import Path
 import numpy as np
 import napari
 import imageio.v2 as imageio
+import csv
 
 from skimage import filters, feature
 import napari_segment_blobs_and_things_with_membranes as nsbatwm
@@ -43,12 +44,17 @@ for folder_path in directory.glob("A375M2_NUP96*"):
         final_pores = np.reshape(pos_points, (-1, 3))
         final_pores2 = local_maxima(segmented_pores, binary)
 
-        viewer = napari.Viewer()
-        CH1 = viewer.add_image(segmented_pores, name='nucleus')
-        CH2 = viewer.add_points(final_pores, name='blobs skimage', size=5)
-        CH3 = viewer.add_points(final_pores2, name='blobs clesp', size=5)
+        # viewer = napari.Viewer()
+        # CH1 = viewer.add_image(segmented_pores, name='nucleus')
+        # CH2 = viewer.add_points(final_pores, name='blobs skimage', size=5)
+        # CH3 = viewer.add_points(final_pores2, name='blobs clesp', size=5)
+        
+        final_pores.tofile(f'{file_path}_skimage.csv', sep=',')
+        final_pores2.tofile(f'{file_path}_clesperanto.csv', sep=',')
             
-     
+        for file_path in Path.cwd().glob("*.csv"):
+            new_path = Path("CSV") / file_path.name
+            file_path.replace(new_path)
         
      
             
