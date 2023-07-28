@@ -18,6 +18,7 @@ def load_file(file, channel):
 
 data_folder = Path("Data\A375M2_NUP96_1")
 files = ["A375M2_NUP96_1_MMStack_Pos0.ome.tif"]
+directory = Path.cwd() / "Data"
 
 pores = load_file(files[0], 0)
 nucleus = load_file(files[0], 1)
@@ -72,7 +73,14 @@ for i in range(points.shape[0]):
 final_pores = np.reshape(pos_points, (-1, 3))
 final_pores2 = local_maxima(segmented_pores, binary)
 
-viewer = napari.Viewer()
-CH1 = viewer.add_image(segmented_pores, name='nucleus pores')
-CH2 = viewer.add_points(final_pores, name='blobs skimage', size=5)
-CH3 = viewer.add_points(final_pores2, name='blobs clesp', size=5)
+# viewer = napari.Viewer()
+# CH1 = viewer.add_image(segmented_pores, name='nucleus pores')
+# CH2 = viewer.add_points(final_pores, name='blobs skimage', size=5)
+# CH3 = viewer.add_points(final_pores2, name='blobs clesp', size=5)
+
+np.savetxt("skimage.csv", final_pores, delimiter=',')
+np.savetxt("clesperanto.csv", final_pores2, delimiter=',')
+
+for a_path in directory.glob("*.csv"):
+    new_path = new_directory / a_path.name
+    a_path.replace(new_path)

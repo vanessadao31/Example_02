@@ -6,7 +6,6 @@ Created on Wed Jul 26 09:13:52 2023
 """
 from pathlib import Path
 import numpy as np
-import napari
 import imageio.v2 as imageio
 import csv
 
@@ -21,9 +20,8 @@ channels = 2
 channel_names = ["pores", "nucleus"]
 
 for folder_path in directory.glob("A375M2_NUP96*"):
+    
     for file_path in folder_path.glob("*.ome.tif"):
-        # for channel in range(channels):
-        #     channel_names[channel] = load_file(file_path, channel)
         
         pores = load_file(file_path, 0)
         nucleus = load_file(file_path, 1)
@@ -43,18 +41,15 @@ for folder_path in directory.glob("A375M2_NUP96*"):
 
         final_pores = np.reshape(pos_points, (-1, 3))
         final_pores2 = local_maxima(segmented_pores, binary)
-
-        # viewer = napari.Viewer()
-        # CH1 = viewer.add_image(segmented_pores, name='nucleus')
-        # CH2 = viewer.add_points(final_pores, name='blobs skimage', size=5)
-        # CH3 = viewer.add_points(final_pores2, name='blobs clesp', size=5)
         
-        final_pores.tofile(f'{file_path}_skimage.csv', sep=',')
-        final_pores2.tofile(f'{file_path}_clesperanto.csv', sep=',')
-            
-        for file_path in Path.cwd().glob("*.csv"):
-            new_path = Path("CSV") / file_path.name
-            file_path.replace(new_path)
+        skimage_name = f"{folder_path}_skimage.csv"
+        clesperanto_name = f"{folder_path}_clesperanto.csv"
         
+    np.savetxt(skimage_name, final_pores, delimiter=',')
+    np.savetxt(clesperanto_name, final_pores2, delimiter=',')
+        
+    for csv_path in directory.glob("*.csv"):
+        new_path = folder_path / csv_path.name
+        csv_path.replace(new_path)
      
             
