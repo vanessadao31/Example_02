@@ -13,15 +13,52 @@ from skimage import filters, feature
 import napari_segment_blobs_and_things_with_membranes as nsbatwm
 import pyclesperanto_prototype as cle
 
-from Draft import redirect_segmentation, load_file, binary_threshold, local_maxima
-
-directory = Path.cwd() / "Data"
+data_folder = Path.cwd() / "Data"
 channels = 2
 channel_names = ["pores", "nucleus"]
 columns = ['File', 'Skimage Blobs', 'Clesperanto Blobs']
 total_rows = []
 
-for folder_path in directory.glob("A375M2_NUP96*"):
+def load_file(file, channel):
+    filename = data_folder / file
+    image = imageio.imread(filename)
+    return image[channel, :, :, :]
+
+def redirect_segmentation(mask, signal):
+    image = np.asarray(mask)
+    
+    # blur and threshold
+    blurred = filters.gaussian(image, 2)
+    thresh = filters.threshold_li(image)
+    binary_li = blurred >= thresh
+    
+    return binary_li * signal
+
+def binary_threshold(data):
+    image = np.asarray(data)
+    
+    # blurred = filters.gaussian(image, 2)
+    thresh = 0.4 * image.max()
+    binary = image >= thresh
+    
+    return binary.astype(int)
+
+def local_maxima(image, binary_image):
+    preprocessed = filters.gaussian(image, sigma=1, preserve_range=True)
+    local_maxima_image = cle.detect_maxima_box(preprocessed)
+    all_labeled = cle.label_spots(local_maxima_image)
+
+    final_spots = cle.exclude_labels_with_map_values_out_of_range(
+        binary_image,
+        all_labeled,
+        minimum_value_range=1,
+        maximum_value_range=1)
+    
+    points = np.argwhere(final_spots)
+    
+    return points
+
+for folder_path in data_folder.glob("A375M2_NUP96*"):
     
     for file_path in folder_path.glob("*.ome.tif"):
         
@@ -56,7 +93,7 @@ for folder_path in directory.glob("A375M2_NUP96*"):
     np.savetxt(clesperanto_name, final_pores2, delimiter=',')
     np.savetxt(data_name, flat_3D, delimiter=',')
 
-    for csv_path in directory.glob("*.csv"):
+    for csv_path in data_folder.glob("*.csv"):
         new_path = folder_path / csv_path.name
         csv_path.replace(new_path)
      
