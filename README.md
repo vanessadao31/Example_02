@@ -16,5 +16,14 @@ conda activate devbio-napari-env
 Then navigate to the repo and run the desired scripts from the command line.
 
 ## Batch Processing
+Iterates through .ome.tif files in `Data` folder and performs difference of gaussian assuming blobs are light on a darker backgorund and `detect_maxima_box` to locate the points of the blobs. Both methods work multi-dimensionally. 
+
+Outputs .csv files into the `Data` folder.
 
 ## Napari Viewer
+Reads .csv files in the `Data` folder and opens up napari viewer with the segmented nucleus as the image layer and detected blobs as a points and label layer. The [napari-skimage-regionprops](https://github.com/haesleinhuepf/napari-skimage-regionprops/tree/master) plugin measure properties of the blobs such as mean, min and max intensity. 
+
+
+<img src="https://github.com/vanessadao31/Example_02/assets/138872234/f2ae32ff-85f5-46f9-ad64-36ee4e674552" width="300">
+
+Blobs can be individually selected from the viewer and the region properties can be saved as a .csv file.
