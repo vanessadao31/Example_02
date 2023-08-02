@@ -10,8 +10,7 @@ import csv
 import numpy as np
 
 from napari_blob_detection import points_to_labels
-from napari_skimage_regionprops import regionprops_table, add_table, get_table
-
+from napari_skimage_regionprops import regionprops_table
 
 data_directory = Path.cwd() / Path("Data")
 
