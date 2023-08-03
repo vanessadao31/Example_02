@@ -27,3 +27,6 @@ Reads .csv files in the `Data` folder and opens up napari viewer with the segmen
 <img src="https://github.com/vanessadao31/Example_02/assets/138872234/f2ae32ff-85f5-46f9-ad64-36ee4e674552" width="300">
 
 Blobs can be individually selected from the viewer and the region properties can be saved as a .csv file.
+
+## Using napari-skimage-regionprops
+Running the `example_1_viewer.py` will open napari with a table measuring the properties of the `segmented_nuclei` layer using [regionprops](https://github.com/haesleinhuepf/napari-skimage-regionprops/tree/master). To interact with the labels and see which index corresponds to which region, activate `pick mode` and tick `show selected`.
