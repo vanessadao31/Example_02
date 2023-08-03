@@ -15,7 +15,6 @@ from example_2_functions import load_file, redirect_segmentation, binary_thresho
 
 data_folder = Path.cwd() / "Data"
 channels = 2
-channel_names = ["pores", "nucleus"]
 columns = ['File', 'Skimage Blobs', 'Clesperanto Blobs']
 total_rows = []
 
