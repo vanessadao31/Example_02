@@ -1,6 +1,1 @@
-File,Skimage Blobs,Clesperanto Blobs
-A375M2_NUP96_1,823,821
-A375M2_NUP96_2,841,889
-A375M2_NUP96_3,318,341
-A375M2_NUP96_4,200,197
-A375M2_NUP96_5,385,477
+File,Number nuclei,Number blobs,Number cells with protein
