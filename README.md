@@ -3,12 +3,12 @@
 A set of scripts which will identify high intensity blobs by [scikit-image's blob detection algorithms](https://scikit-image.org/docs/stable/auto_examples/features_detection/plot_blob.html) and/or [pyclesperacto_prototype's](https://github.com/clEsperanto/pyclesperanto_prototype/tree/master)`detect_maxima_box` to detect local maxima. The point data is written onto .csv files and can be viewed on napari by the `napari_viewer.py` script producing an image, points and label layer.
 
 ## Pre-requisites
-Create a new conda/mamba environment and install [devbio-napari](https://github.com/haesleinhuepf/devbio-napari#installation) using mamba (already on OnDemand).
+- Create a new conda/mamba environment and install [devbio-napari](https://github.com/haesleinhuepf/devbio-napari#installation) using mamba (already on OnDemand).
 ```
 mamba create --name devbio-napari-env python=3.9 devbio-napari -c conda-forge -c pytorch
 ```
 
-Afterwards, activate the environment.
+- Afterwards, activate the environment.
 ```
 conda activate devbio-napari-env
 ```
@@ -27,3 +27,11 @@ Reads .csv files in the `Data` folder and opens up napari viewer with the segmen
 <img src="https://github.com/vanessadao31/Example_02/assets/138872234/f2ae32ff-85f5-46f9-ad64-36ee4e674552" width="300">
 
 Blobs can be individually selected from the viewer and the region properties can be saved as a .csv file.
+
+## Using napari-skimage-regionprops
+Running the `example_1_viewer.py` will open napari with a table measuring the properties of the `segmented_nuclei` layer using [regionprops](https://github.com/haesleinhuepf/napari-skimage-regionprops/tree/master). To interact with the labels and see which index corresponds to which region, 
+1. activate `pick mode`
+2. tick `show selected`
+3. select any row/label in the table
+
+
