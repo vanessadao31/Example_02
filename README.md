@@ -24,7 +24,7 @@ Outputs .csv files into the `Data` folder.
 Reads .csv files in the `Data` folder and opens up napari viewer with the segmented nucleus as the image layer and detected blobs as a points and label layer. The [napari-skimage-regionprops](https://github.com/haesleinhuepf/napari-skimage-regionprops/tree/master) plugin measure properties of the blobs such as mean, min and max intensity. 
 
 
-<img src="./images/regionprops.png" width="300">
+<img src="./images/regionprops.png" width="500">
 
 Blobs can be individually selected from the viewer and the region properties can be saved as a .csv file.
 
