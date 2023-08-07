@@ -14,7 +14,7 @@ from napari_skimage_regionprops import regionprops_table
 
 data_directory = Path.cwd() / Path("Data")
 
-for folder_path in data_directory.glob("A375M2_NUP96_*/csv"):
+for folder_path in data_directory.glob("A375M2_NUP96_*"):
 
     for file_path in folder_path.glob("*_napari.csv"):
         flat_segmented_pores = np.loadtxt(file_path, delimiter=',')
@@ -24,7 +24,7 @@ for folder_path in data_directory.glob("A375M2_NUP96_*/csv"):
     # for file_path in data_directory.glob("*_skimage.csv"):
          final_pores = np.loadtxt(file_path, delimiter=',')
     
-    # viewing in napari
+    
     viewer = napari.Viewer()
     CH1 = viewer.add_image(segmented_pores, name='Nucleus')
     CH2 = viewer.add_points(final_pores, name='Blobs', size=5)
