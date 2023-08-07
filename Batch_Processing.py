@@ -19,9 +19,6 @@ columns = ['File', 'Skimage Blobs', 'Clesperanto Blobs']
 total_rows = []
 
 for folder_path in data_folder.glob("A375M2_NUP96*"):
-
-    csv_folder = folder_path / "csv"
-    csv_folder.mkdir(exist_ok=True)
     
     for file_path in folder_path.glob("*.ome.tif"):
         
@@ -41,32 +38,29 @@ for folder_path in data_folder.glob("A375M2_NUP96*"):
             if binary[points[i, 0], points[i, 1], points[i, 2]] == 1:
                pos_points = np.append(pos_points, points[i], axis=0)
 
-        # saving skimage localmaxima
         final_pores = np.reshape(pos_points, (-1, 3))
-        skimage_name = f"{folder_path}_skimage.csv"
-        np.savetxt(skimage_name, final_pores, delimiter=',')
-        
-        # saving clesperanto locamaxima
-        clesperanto_name = f"{folder_path}_clesperanto.csv"
         final_pores2 = local_maxima(segmented_pores, binary)
-        np.savetxt(clesperanto_name, final_pores2, delimiter=',')
-        
-        # saving actual dataset
         flat_3D = segmented_pores.ravel()
+        
+        skimage_name = f"{folder_path}_skimage.csv"
+        clesperanto_name = f"{folder_path}_clesperanto.csv"
         data_name = f"{folder_path}_napari.csv"
-        np.savetxt(data_name, flat_3D, delimiter=',')
         
         row = [folder_path.stem, final_pores.shape[0], final_pores2.shape[0]]
-        total_rows = np.append(total_rows, row, axis=0) 
+        total_rows = np.append(total_rows, row, axis=0)
         
-    for csv_path in data_folder.glob("*_*.csv"):
-        new_path = csv_folder / csv_path.name
+    np.savetxt(skimage_name, final_pores, delimiter=',')
+    np.savetxt(clesperanto_name, final_pores2, delimiter=',')
+    np.savetxt(data_name, flat_3D, delimiter=',')
+
+    for csv_path in data_folder.glob("*.csv"):
+        new_path = folder_path / csv_path.name
         csv_path.replace(new_path)
      
 total_rows = np.reshape(total_rows, (-1, len(columns)))
 
 # saving results
-with open("summaryfile.csv", mode='w') as summary_file:
+with open("summary_file.csv", mode='w') as summary_file:
     summary_writer = csv.writer(summary_file, delimiter=',')
     summary_writer.writerow(columns)        
     summary_writer.writerows(total_rows)
