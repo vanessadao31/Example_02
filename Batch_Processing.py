@@ -19,15 +19,17 @@ columns = ['File', 'Skimage Blobs', 'Clesperanto Blobs']
 total_rows = []
 
 for folder_path in data_folder.glob("A375M2_NUP96*"):
-    
+    print('Processing all files in ' + str(folder_path))
     for file_path in folder_path.glob("*.ome.tif"):
-        
+        print('Processing ' + str(file_path))
         pores = load_file(folder_path, file_path, 0)
         nucleus = load_file(folder_path, file_path, 1)
-         
-        nucleus_filtered = nsbatwm.median_filter(nucleus)
-        segmented_pores = redirect_segmentation(nucleus_filtered, pores)
 
+        print('Smoothing nuclear channel')
+        nucleus_filtered = nsbatwm.median_filter(nucleus)
+        print('Segmenting nucleus')
+        segmented_pores = redirect_segmentation(nucleus_filtered, pores)
+        print('Finding local maxima using skimage DOG filter')
         points_data = feature.blob_dog(segmented_pores.astype(float), min_sigma=1, max_sigma=10, threshold=0.7)
         points = points_data[:, :3].astype(int)
 
@@ -39,6 +41,7 @@ for folder_path in data_folder.glob("A375M2_NUP96*"):
                pos_points = np.append(pos_points, points[i], axis=0)
 
         final_pores = np.reshape(pos_points, (-1, 3))
+        print('Finding local maxima using pyclesperanto')
         final_pores2 = local_maxima(segmented_pores, binary)
         flat_3D = segmented_pores.ravel()
         
@@ -49,6 +52,7 @@ for folder_path in data_folder.glob("A375M2_NUP96*"):
         row = [folder_path.stem, final_pores.shape[0], final_pores2.shape[0]]
         total_rows = np.append(total_rows, row, axis=0)
         
+    print('Saving results...')
     np.savetxt(skimage_name, final_pores, delimiter=',')
     np.savetxt(clesperanto_name, final_pores2, delimiter=',')
     np.savetxt(data_name, flat_3D, delimiter=',')
@@ -59,7 +63,7 @@ for folder_path in data_folder.glob("A375M2_NUP96*"):
      
 total_rows = np.reshape(total_rows, (-1, len(columns)))
 
-# saving results
+print('Summarising results...')
 with open("summary_file.csv", mode='w') as summary_file:
     summary_writer = csv.writer(summary_file, delimiter=',')
     summary_writer.writerow(columns)        
