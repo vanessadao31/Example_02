@@ -29,12 +29,9 @@ Reads .csv files in the `Data` folder and opens up napari viewer with the segmen
 Blobs can be individually selected from the viewer and the region properties can be saved as a .csv file.
 
 ## Using napari-skimage-regionprops
-Running the `example_2_viewer.py` will open napari with a table measuring the properties of the `labels` layer using [regionprops](https://github.com/haesleinhuepf/napari-skimage-regionprops/tree/master). To interact with the labels and see which index corresponds to which region, 
+Running the `example_1_viewer.py` will open napari with a table measuring the properties of the `segmented_nuclei` layer using [regionprops](https://github.com/haesleinhuepf/napari-skimage-regionprops/tree/master). To interact with the labels and see which index corresponds to which region, 
 1. activate `pick mode`
 2. tick `show selected`
 3. select any row/label in the table
 
-To visualise features across all regions, double click a column header and choose a colormap. Here, the maximum intensity of the blobs are visualised.
-
-<img src="./images/intensity.png" width="500">
 
