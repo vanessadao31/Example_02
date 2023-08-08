@@ -17,6 +17,7 @@ from example_2_functions import load_file, redirect_segmentation, binary_thresho
 channels = 2
 columns = ['File', 'Skimage Blobs', 'Clesperanto Blobs']
 total_rows = []
+
 parser = argparse.ArgumentParser()
 parser.add_argument("parent_directory", help="parent search directory")
 parser.add_argument("folder_pattern", help="folders matching this pattern in the parent directory will be searched")
@@ -29,6 +30,7 @@ file_pattern = args.file_pattern
 
 for folder_path in data_folder.glob(folder_pattern):
     print('Processing all files in ' + str(folder_path))
+
     for file_path in folder_path.glob(file_pattern):
         print('Processing ' + str(file_path))
         pores = load_file(folder_path, file_path.name, 0)
