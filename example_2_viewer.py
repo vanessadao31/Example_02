@@ -20,7 +20,6 @@ args = parser.parse_args()
 data_folder = Path(args.parent_directory)
 folder_pattern = args.folder_pattern
 
-
 for folder_path in data_folder.glob(folder_pattern):
     print('Processing all files in ' + str(folder_path))
 
