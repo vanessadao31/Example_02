@@ -34,4 +34,7 @@ Running the `example_1_viewer.py` will open napari with a table measuring the pr
 2. tick `show selected`
 3. select any row/label in the table
 
+To visualise features across all regions, double click a column header amd choose a colormap. Here, the maximum intensity of the blos are visualised.
+
+<img src="https://github.com/vanessadao31/Example_02/assets/138872234/e36d4b6a-cef4-4325-b82b-33d406369b6a" width="500">
 
