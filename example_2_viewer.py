@@ -9,6 +9,8 @@ import napari
 import numpy as np
 import argparse
 
+from skimage.io import imread
+
 from napari_blob_detection import points_to_labels
 from napari_skimage_regionprops import regionprops_table
 
@@ -23,24 +25,27 @@ folder_pattern = args.folder_pattern
 for folder_path in data_folder.glob(folder_pattern):
     print('Processing all files in ' + str(folder_path))
 
-    for file_path in folder_path.glob("*_napari.csv"):
+    for file_path in folder_path.glob("*_napari.png"):
         print('Processing ' + str(file_path))
-        flat_segmented_pores = np.loadtxt(file_path, delimiter=',')
-        segmented_pores = flat_segmented_pores.reshape(-1, 1060, 1520)
+        segmented_pores = imread(file_path)
         
     for file_path in folder_path.glob("*_clesperanto.csv"):
     # for file_path in data_directory.glob("*_skimage.csv"):
         print('Processing ' + str(file_path))
         final_pores = np.loadtxt(file_path, delimiter=',')
 
+    for file_path in folder_path.glob("*_properties.csv"):
+        print(f"Processing {file_path.name}")
+        voxel_sizes = np.loadtxt(file_path, delimiter=',')
+
     print('Opening napari')
     viewer = napari.Viewer()
-    CH1 = viewer.add_image(segmented_pores, name='Nucleus')
-    CH2 = viewer.add_points(final_pores, name='Blobs', size=5)
+    CH1 = viewer.add_image(segmented_pores, name='Nucleus', scale=(voxel_sizes[0], voxel_sizes[1], voxel_sizes[2]))
+    CH2 = viewer.add_points(final_pores, name='Blobs', size=5, scale=(voxel_sizes[0], voxel_sizes[1], voxel_sizes[2]))
     # CH3 = viewer.add_points(final_pores2, name='blobs clesp', size=5)
     
     data, state, Labels = points_to_labels(viewer.layers[1], viewer.layers[0])
-    CH3 = viewer.add_labels(data, name='Labels')
+    CH3 = viewer.add_labels(data, name='Labels', scale=(voxel_sizes[0], voxel_sizes[1], voxel_sizes[2]))
 
     print('Adding region properties')
     # region properties

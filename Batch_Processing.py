@@ -10,9 +10,9 @@ from pathlib import Path
 
 import napari_segment_blobs_and_things_with_membranes as nsbatwm
 import numpy as np
-from skimage import feature
+from skimage import feature, io
 
-from example_2_functions import load_file, redirect_segmentation, binary_threshold, local_maxima
+from example_2_functions import load_file_channels_and_voxels, redirect_segmentation, binary_threshold, local_maxima
 
 channels = 2
 columns = ['File', 'Skimage Blobs', 'Clesperanto Blobs']
@@ -33,8 +33,8 @@ for folder_path in data_folder.glob(folder_pattern):
 
     for file_path in folder_path.glob(file_pattern):
         print('Processing ' + str(file_path))
-        pores = load_file(folder_path, file_path.name, 0)
-        nucleus = load_file(folder_path, file_path.name, 1)
+        channels, pores, voxel_sizes = load_file_channels_and_voxels(folder_path, file_path.name, 0)
+        channels, nucleus, voxel_sizes = load_file_channels_and_voxels(folder_path, file_path.name, 1)
 
         print('Smoothing nuclear channel')
         nucleus_filtered = nsbatwm.median_filter(nucleus)
@@ -52,30 +52,41 @@ for folder_path in data_folder.glob(folder_pattern):
                 pos_points = np.append(pos_points, points[i], axis=0)
 
         final_pores = np.reshape(pos_points, (-1, 3))
-        print('Finding local maxima using pyclesperanto')
         final_pores2 = local_maxima(segmented_pores, binary)
-        flat_3D = segmented_pores.ravel()
-
-        skimage_name = f"{folder_path}_skimage.csv"
-        clesperanto_name = f"{folder_path}_clesperanto.csv"
-        data_name = f"{folder_path}_napari.csv"
 
         row = [folder_path.stem, final_pores.shape[0], final_pores2.shape[0]]
-        total_rows = np.append(total_rows, row, axis=0)
 
-    print('Saving results...')
-    np.savetxt(skimage_name, final_pores, delimiter=',')
-    np.savetxt(clesperanto_name, final_pores2, delimiter=',')
-    np.savetxt(data_name, flat_3D, delimiter=',')
+        # saving skimage local maxima
+        print('Saving skimage local maxima results...')
+        skimage_name = f"{folder_path}_skimage.csv"
+        np.savetxt(skimage_name, final_pores, delimiter=',')
 
-    for csv_path in data_folder.glob("*.csv"):
+        # saving clesperanto local maxima
+        print('Saving clesperanto local maxima results...')
+        clesperanto_name = f"{folder_path}_clesperanto.csv"
+        np.savetxt(clesperanto_name, final_pores2, delimiter=',')
+
+        # saving actual dataset
+        print('Saving dataset...')
+        data_name = f"{folder_path}_napari.png"
+        data = io.imsave(data_name, segmented_pores)
+
+        print('Saving dataset properties...')
+        properties_name = f"{folder_path}_properties.csv"
+        np.savetxt(properties_name, (voxel_sizes[0], voxel_sizes[1], voxel_sizes[2]), delimiter=',')
+
+    for csv_path in data_folder.glob("*_*.csv"):
         new_path = folder_path / csv_path.name
         csv_path.replace(new_path)
+
+    for png_path in data_folder.glob("*_*.png"):
+        new_path = folder_path / png_path.name
+        png_path.replace(new_path)
 
 total_rows = np.reshape(total_rows, (-1, len(columns)))
 
 print('Summarising results...')
-with open("summary_file.csv", mode='w') as summary_file:
+with open("summary.csv", mode='w') as summary_file:
     summary_writer = csv.writer(summary_file, delimiter=',')
     summary_writer.writerow(columns)
     summary_writer.writerows(total_rows)

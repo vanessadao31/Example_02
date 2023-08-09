@@ -4,17 +4,25 @@ functions
 """
 from pathlib import Path
 import numpy as np
-import imageio.v2 as imageio
-import csv
+from aicsimageio import AICSImage
+
 
 from skimage import filters, feature
 import napari_segment_blobs_and_things_with_membranes as nsbatwm
 import pyclesperanto_prototype as cle
 
-def load_file(folder, file, channel):
+def get_voxel_size_from_aics_image(aics_image):
+    return (aics_image.physical_pixel_sizes.Z,
+            aics_image.physical_pixel_sizes.Y,
+            aics_image.physical_pixel_sizes.X)
+
+def load_file_channels_and_voxels(folder, file, channel):
     filename = folder / file
-    image = imageio.imread(filename)
-    return image[channel, :, :, :]
+    data = AICSImage(filename)
+    image = data.get_image_data('ZYX', T=0, C=channel)
+    channels = data.get_image_data('C', Z=0, Y=0, X=0, T=0)
+    voxel_sizes = get_voxel_size_from_aics_image(data)
+    return channels, image, voxel_sizes
 
 def redirect_segmentation(mask, signal):
     image = np.asarray(mask)
